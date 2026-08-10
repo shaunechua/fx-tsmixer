@@ -1,0 +1,26 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Test and tool caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+cache/
+
+# Generated research artifacts
+
+checkpoints/
+
+# Local notebooks and editor files
+.ipynb_checkpoints/
+.vscode/
+
+.github
