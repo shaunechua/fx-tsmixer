@@ -55,7 +55,7 @@ For each of the 24 monthly validation folds:
 
 The inner cross-validation splits each fold's training data into 4 chronological blocks and scores 3 splits, each trained on the past with a one-day gap before the scored block. Missing values are filled with the training median and the features are standardized inside every split, so no look ahead. The ridge penalty (alpha) is chosen from 0.01 to 1,000 by the same inner cross-validation.
 
-**Ridge selected no group in any of the 24 folds.** Every group, tested on its own, chose the largest alpha (1,000) in every fold. That shrinks its coefficients towards zero and pulls the forecast back towards the historical mean. The largest gain from any group in any fold was 0.000002, a fifth of the threshold, and `rates` and `macroeconomic_activity` made the error worse in every fold.
+**Ridge selected no group in any of the 24 folds.** Every group, tested on its own, chose the largest alpha (1,000) in every fold. That shrinks its coefficients towards zero and pulls the forecast back towards the historical mean. The largest gain from any group in any fold was 0.000002, and `rates` and `macroeconomic_activity` made the error worse in every fold.
 
 Ridge only finds linear relationships, and TSMixer is not linear. So the pipeline still runs two TSMixer models for comparison. `tsmixer` uses no features, which matches what ridge selected. `tsmixer_external` uses the `equities_and_risk`, `oil`, and `macroeconomic_activity` groups.
 
@@ -73,7 +73,7 @@ The models are:
 
 | Model | Forecast |
 |---|---|
-| `random_walk` | Always 0, which means no change in the rate. This is the standard benchmark for exchange-rate forecasts. |
+| `random_walk` | Always 0, which means no change in the rate. Standard benchmark for exchange-rate forecasts. |
 | `historical_mean` | The average daily return in the training data. |
 | `arima` | ARIMA(p, 0, q) on daily returns, with p and q up to 2 chosen by AICc each month. |
 | `tsmixer` | Darts `TSMixerModel` on USD/JPY's own past returns only, with no extra features. |
@@ -178,8 +178,8 @@ Settings live in `configs/experiment.yaml`:
 
 ## Trade-offs
 
-- **Monthly retraining.** Each mode trains every model 24 times, once per month. Daily retraining would mean about 500 fits per mode, roughly 20 times the runtime. The model inputs still update every day. Only the learned parameters are up to a month old.
-- **A small TSMixer on the CPU.** TSMixer uses a 32-day lookback, a hidden size of 64, and 2 mixer blocks. Early stopping ends training after 10 epochs without improvement, which in validation happens after 11 to 24 epochs. Training runs on the CPU so results are identical between runs. 
+- **Monthly retraining.** Each mode trains every model 24 times, once per month. Daily retraining would mean about 500 fits per mode, roughly 20 times the runtime. The learned parameters are up to a month old.
+- **A small TSMixer on the CPU.** TSMixer uses a 32-day lookback, a hidden size of 64, and 2 mixer blocks. Early stopping ends training after 10 epochs without improvement, which in validation happens after 11 to 24 epochs. Training runs on the CPU.
 - **One seed and no hyperparameter search.** Each model trains once with a fixed seed and fixed settings. A search over settings would use up the validation period as an honest check.
 - **A one-day horizon.** TSMixer predicts one value per day. Longer horizons would cost 2 to 6 times the training time if the model outputs the whole path.
 - **Fixed feature sets.** The two TSMixer models use feature lists fixed in advance.
@@ -192,6 +192,6 @@ Settings live in `configs/experiment.yaml`:
 - **Longer horizons and lookback window.** Forecast the cumulative return over the next 20 days. Slow-moving macro features are more likely to matter at that horizon than at one day.
 - **Market regime features.** Engineer / encode features that describe market conditions for market regime detection that can be fed into the model to learn from.
 - **Relative-equity charts.** Plot each strategy's equity divided by buy-and-hold, and report alpha and beta against buy-and-hold.
-- **More models.** The paper's other models, such as FEDformer and iTransformer, through the same walk-forward folds.
+- **More models.** Testing more models, such as timesFM and FEDformer through the same walk-forward folds.
 
 
